@@ -1,0 +1,77 @@
+== mongodb 
+1. install mongodb download 
+https://www.mongodb.com/try/download/shell
+
+2. install by nodejs
+npm install express mongodb 
+
+3. create db name and collection  by nodejs
+const dbName = "gym_db";
+const uri = "mongodb://localhost:27017"; 
+ const client = new MongoClient(uri);
+  await client.connect();
+console.log("Connected to MongoDB");
+
+const db = client.db(dbName);
+
+const collection = db.collection("users");
+
+
+      const sampleData = [
+          { name: "Akeera", age: 25 },
+          { name: "Tonk", age: 30 }
+      ];
+
+      await collection.insertMany(sampleData);
+	  
+	  
+4. create API user data 
+const express = require("express");
+const app = express();
+const PORT = 3000;
+app.use(express.json());
+
+// Route to find a user by name
+app.get("/users/:name", async (req, res) => {
+  try {
+    await client.connect();
+    const db = client.db(dbName);
+    const collection = db.collection("users");
+
+    const userName = req.params.name;
+    const user = await collection.findOne({ name: userName });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).json({ message: "Internal Server Error" });
+  } finally {
+    await client.close();
+  }
+});
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+
+
+== run localhost 
+1. http://localhost:3000/users/Tonk
+
+{
+_id: "67d247ec8d0efee4af0f654f",
+name: "Tonk",
+age: 70
+}
+
+============
+mongo
+show dbs
+use myDatabase
+show collections
+db.users.find().pretty()
